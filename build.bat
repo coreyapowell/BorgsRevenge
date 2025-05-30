@@ -1,7 +1,5 @@
 @echo off
 set returndir=%cd%
-REM echo %CWD%
-REM cd \msys64\home\Corey\qjs\ng\mingw
 
 set compilever="MSYS2 MINGW64"
 echo @@ building %compilever%
@@ -19,27 +17,30 @@ echo @@ %compilever% built successfully.
 
 set compilever="WSL Debian"
 echo @@ building %compilever%
-cmd /c wsl -e sh -c "cd /mnt/c/msys64/home/Corey/qjs/ng/deb; make"
+cmd /c wsl -e sh -c "cd /mnt/c/msys64/home/Corey/qjs/ng/wsl; cmake -build ."
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 echo @@ %compilever% built successfully.
-@echo [
+@echo[
 
 set compilever="MSVC"
 echo @@ building %compilever%
-cmd /c msbuild c:\msys64\home\Corey\qjs\ng\ms\quickjs.sln /p:Configuration=Release
+cd c:\msys64\home\Corey\qjs\ng\msvc
+cmd /c msbuild quickjs.sln /p:Configuration=Release
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 echo @@ %compilever% built successfully.
 @echo[
 
 set compilever="Clang for MSVC"
 echo @@ building %compilever%
-cd c:\msys64\home\Corey\qjs\ng\msclangr
-cmd /c ninja
+cd c:\msys64\home\Corey\qjs\ng\msclang
+cmd /c cmake --build .
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 @echo @@ %compilever% built successfully.
 @echo[
 
 @echo @@ All compiles completed successfully @@
+@echo[
+
 GOTO END
 cd %returndir%
 :FAILED
