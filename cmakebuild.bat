@@ -38,7 +38,7 @@ mkdir %projectrootdosdir%\%projectbuilddir%
 IF %ERRORLEVEL% NEQ 0 GOTO FOLDERFAILED
 
 echo @@ running cmake for %compilever%
-cmd /c C:\msys64\msys2_shell.cmd -defterm -where "c:%projectrootgnudir%/%projectbuilddir%" -no-start -mingw64 -shell bash -c "cmake -B . -S .."
+cmd /c C:\msys64\msys2_shell.cmd -defterm -where "c:%projectrootgnudir%/%projectbuilddir%" -no-start -mingw64 -shell bash -c "cmake -B . -S .. -DCMAKE_BUILD_TYPE=Release"
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 echo @@ %compilever% built successfully.
 @echo[
@@ -66,9 +66,12 @@ set projectbuilddir="wsl"
 IF %ARG2%==1 rmdir /S /Q %projectrootdosdir%\%projectbuilddir%
 mkdir %projectrootdosdir%\%projectbuilddir%
 IF %ERRORLEVEL% NEQ 0 GOTO FOLDERFAILED
+cd  %projectrootdosdir%\%projectbuilddir%
+IF %ERRORLEVEL% NEQ 0 GOTO FOLDERFAILED
 
 echo @@ building %compilever%
-cmd /c wsl -e sh -c "cd /mnt/c/%projectrootgnudir%/%projectbuilddir%; cmake -B . -S .."
+REM fixed! wsl requires quotes, but I can avoid them by sending hard pathnames
+wsl -e sh -c "cmake -B /mnt/c/%projectrootgnudir%/%projectbuilddir% -S /mnt/c/%projectrootgnudir%"
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 echo @@ %compilever% built successfully.
 @echo[
@@ -85,7 +88,7 @@ cd  %projectrootdosdir%\%projectbuilddir%
 IF %ERRORLEVEL% NEQ 0 GOTO FOLDERFAILED
 
 echo @@ building %compilever%
-cmake -G "Visual Studio 17 2022" -S ..\ -B .
+cmake -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release  -S ..\ -B .
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 echo @@ %compilever% built successfully.
 cd ../
@@ -105,8 +108,12 @@ IF %ERRORLEVEL% NEQ 0 GOTO FOLDERFAILED
 echo @@ building %compilever%
 REM this is removed because I started getting errors: build with: cmake --build .
 REM cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -D CMAKE_BUILD_TYPE=Release -S ../ -B .
-REM without -G Ninja this version will use the MSVC build environment
+REM all this is necessary to prevent m$build from stealing the compiler and ignoring clang. but now I need to get the toolchain to non-c .. probably a 6th build
 cmake -S .. -B . -G "Visual Studio 17 2022" -T="ClangCL" -D_CMAKE_TOOLCHAIN_PREFIX="ClangCL" -DCMAKE_C_COMPILER:FILEPATH="C:\Program Files\LLVM\bin\clang.exe" -DCMAKE_CXX_COMPILER:FILEPATH="C:\Program Files\LLVM\bin\clang++.exe"
+REM without -G Ninja this version will use the MSVC build environment
+REM cmake -DLLVM_ENABLE_PROJECTS=clang -G Ninja -B . -S ..
+
+REM cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -D CMAKE_BUILD_TYPE=Release -S .. -B .
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 @echo @@ %compilever% built successfully.
 cd ../
@@ -125,3 +132,5 @@ GOTO END
 echo %compilever% : FAILED!
 :END
 cd %returndir%
+
+PAUSE
