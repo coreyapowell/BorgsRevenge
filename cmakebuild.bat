@@ -106,7 +106,7 @@ echo @@ building %compilever%
 REM this is removed because I started getting errors: build with: cmake --build .
 REM cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -D CMAKE_BUILD_TYPE=Release -S ../ -B .
 REM without -G Ninja this version will use the MSVC build environment
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -D CMAKE_BUILD_TYPE=Release -S .. -B .
+cmake -S .. -B . -G "Visual Studio 17 2022" -T="ClangCL" -D_CMAKE_TOOLCHAIN_PREFIX="ClangCL" -DCMAKE_C_COMPILER:FILEPATH="C:\Program Files\LLVM\bin\clang.exe" -DCMAKE_CXX_COMPILER:FILEPATH="C:\Program Files\LLVM\bin\clang++.exe"
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 @echo @@ %compilever% built successfully.
 cd ../
