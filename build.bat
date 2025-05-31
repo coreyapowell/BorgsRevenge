@@ -23,7 +23,7 @@ set projectbuilddir=mingw
 cd  %projectrootdosdir%\%projectbuilddir%
 IF %ERRORLEVEL% NEQ 0 GOTO FOLDERFAILED
 echo @@ building %compilever%
-cmd /c C:\msys64\msys2_shell.cmd -defterm -where "c%projectrootgnudir%/%projectbuilddir%" -no-start -mingw64 -shell bash -c "echo @@ making mingw version & cmake --build ."
+cmd /c C:\msys64\msys2_shell.cmd -defterm -where "c:%projectrootgnudir%/%projectbuilddir%" -no-start -mingw64 -shell bash -c "cmake --build ."
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 echo @@ %compilever% built successfully.
 @echo[
@@ -49,7 +49,7 @@ set projectbuilddir=wsl
 cd  %projectrootdosdir%\%projectbuilddir%
 IF %ERRORLEVEL% NEQ 0 GOTO FOLDERFAILED
 echo @@ building %compilever%
-cmd /c wsl -e sh -c "cd /mnt/c%projectrootgnudir%/%projectbuilddir%; cmake -build ."
+cmd /c wsl -e sh -c "cd /mnt/c%projectrootgnudir%/%projectbuilddir%; cmake --build ."
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 echo @@ %compilever% built successfully.
 @echo[
@@ -62,7 +62,8 @@ set projectbuilddir=msvc
 cd  %projectrootdosdir%\%projectbuilddir%
 IF %ERRORLEVEL% NEQ 0 GOTO FOLDERFAILED
 echo @@ building %compilever%
-cmd /c msbuild quickjs.sln /p:Configuration=Release
+REM cmd /c msbuild quickjs.sln /p:Configuration=Release
+cmd /c cmake --build .
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 echo @@ %compilever% built successfully.
 @echo[
@@ -75,6 +76,7 @@ set projectbuilddir=msclang
 cd  %projectrootdosdir%\%projectbuilddir%
 IF %ERRORLEVEL% NEQ 0 GOTO FOLDERFAILED
 echo @@ building %compilever%
+REM cmd /c msbuild quickjs.sln /p:Configuration=Release
 cmd /c cmake --build .
 IF %ERRORLEVEL% NEQ 0 GOTO FAILED
 @echo @@ %compilever% built successfully.
@@ -92,3 +94,5 @@ GOTO END
 echo %compilever% : FAILED!
 :END
 cd %returndir%
+
+@PAUSE
